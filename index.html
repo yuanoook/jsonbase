@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset = "utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+  <title>JSONBASE</title>
+  <script src ="./jsonbase.js" ></script>
+  <script src="//fe.yuanoook.com/static/js/jquery.plus.min.js"></script>
+  <script>
+  $(function(){
+    var RootRef = JSONBASE.Reference("https://yuanoook.wilddogio.com/");
+    var RootValue;
+
+    RootRef.on("value",function(snapshot){
+      RootValue = snapshot.val();
+      resetOneHour();
+      render();
+    },function(err){
+      console.log(err);
+    });
+
+    $('#inputDiv').on('keyup', 'input', function(){
+      RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
+      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
+    });
+
+    function render(){
+      $('#outputDiv').render(RootValue);
+      $('#inputDiv:not(.rendered)').render(RootValue);
+    }
+
+    function resetOneHour(){
+      $.pullValue(RootValue,'updated_at') - new Date().valueOf() > 3600 && RootRef.set({
+        "name" : "Rango",
+        "age" : 16,
+        "location" : {
+          "city" : "ShenZhen",
+          "zip" : 518000
+        },
+        "updated_at": JSONBASE.ServerValue.TIMESTAMP
+      });
+    }
+  });
+  </script>
+</head>
+<body>
+  <h1>JSONBASE本地实时数据测试</h1>
+  <fieldset>
+    <legend>写入</legend>
+    <div id="inputDiv">
+      <p>name: <input data-src="name"></p>
+      <p>age: <input data-src="age"></p>
+      <p>location.city: <input data-src="location.city"></p>
+      <p>location.zip: <input data-src="location.zip"></p>
+    </div>
+  </fieldset>
+
+  <br/>
+  <fieldset>
+    <legend>读取</legend>
+    <div id="outputDiv">
+      <p>name: <span data-src="name"></span></p>
+      <p>age: <span data-src="age"></span></p>
+      <p>location.city: <span data-src="location.city"></span></p>
+      <p>location.zip: <span data-src="location.zip"></span></p>
+      <p>updated_at: <span data-src="updated_at"></span></p>
+    </div>
+  </fieldset>
+</body>
+</html>

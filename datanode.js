@@ -6,7 +6,6 @@
     this.updated_at = uniqueMillisecond();
     this.eventListeners = {};
     this.set(value);
-    eventListeners();
   }
 
   DataNode.prototype = {

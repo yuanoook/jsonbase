@@ -4,8 +4,8 @@
   var JSONBASE = {};
   window.JSONBASE = JSONBASE;
   JSONBASE.Reference = function(location){
-    var tmp_span = '-_=-_=-_=-_=-_=-_=-_=-_=-_=-_=-_=';
-    var keys = location.replace(/([^\/]|^)\/([^\/]|$)/g,'$1'+tmp_span+'$2').split(tmp_span);
+    var invisible_char = '\032';
+    var keys = location.replace(/([^\/]|^)\/([^\/]|$)/g,'$1'+invisible_char+'$2').split(invisible_char);
     console.log(keys);
     return new Reference(location);
   }

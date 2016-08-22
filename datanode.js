@@ -7,6 +7,7 @@
   }
 
   DataNode.prototype = {
+    //##########################  set , get --START #######################
     set: function(newValue){
       //设置新值
       if( Object.prototype.toString.call(newValue)=='[object Object]' ){
@@ -14,12 +15,13 @@
         this.children = {};
         for(var key in newValue){
           if( newValue.hasOwnProperty(key) ){
-            this.children[key] = new DataNode(newValue[key]);
+            this.addChild(key, new DataNode(newValue[key]));
           }
         }
       }else{
         this.type = 'value';
         this.value = newValue;
+        this.removeChildren();
       }
       delete this[this.type=='node' ? 'value': 'children'];
       this.updated_at = uniqueMillisecond();
@@ -40,6 +42,9 @@
         return resObj;
       }
     },
+    //##########################  set , get --END #######################
+
+    //##########################  export , import --START #######################
     export: function(){
       //导出静态数据
       var exportObj = {};
@@ -80,16 +85,105 @@
       });
       delete this[this.type=='node' ? 'value': 'children'];
       return this;
-    }
+    },
+    //##########################  export , import --END #######################
+
+    //##########################  addChild , removeChild, removeChildren, getChild, getChildren --START #######################
+    addChild: function(key,node){
+      this.children[key] = node;
+      node.key = key;
+      node.parent = this;
+      return this;
+    },
+    removeChild: function(key){
+      var node = this.children[key];
+      delete this.children[key];
+      delete node.key;
+      delete node.parent;
+      return this;
+    },
+    removeChildren: function(){
+      for(var key in this.children){
+        if(this.children.hasOwnProperty(key)){
+          this.removeChild(key);
+        }
+      }
+      return this;
+    },
+    getChild: function(pathname){
+      var keys = pathname.split('/');
+      var subnode = this;
+      var existed = true;
+      keys.forEach(function(key){
+        if(key.length){
+          if(subnode.children && subnode.children[key]){
+            subnode = subnode.children[key];
+          }else{
+            existed = false;
+          }
+        }
+      });
+      return existed ? subnode : undefined;
+    },
+    setChild: function(pathname,node){
+      var childnode = this.getChild(pathname);
+      if(childnode){
+        childnode.import(node.export());
+      }else{
+        throw new Error('Node of '+pathname+' cannot be found!');
+      }
+      return this;
+    },
+    getChildren: function(){
+      var result = [];
+      for(var key in this.children){
+        if(this.children.hasOwnProperty(key)){
+          result.push(this.children[key]);
+        }
+      }
+      return result;
+    },
+    //##########################  addChild , removeChild, removeChildren, getChild, getChildren --END #######################
   }
 
   function extend(object){
     Array.prototype.forEach.call(arguments,function(obj,index){
       if(!index){return;}
       for(var key in obj){
-        obj.hasOwnProperty(key) && (object[key] = obj[key]);
+        obj.hasOwnProperty(key) , (object[key] = obj[key]);
       }
     });
+  }
+
+  function combineSrcWithDirectory(src,directory){
+    if(!/^\./.test(src)){return src;}
+
+    var result = directory+src;
+    var ruined_indexs = [];
+
+    result = result.split('/');
+
+    result.map(function(x,i,a){
+      var prev_index = getUnRuinedPrevIndex(i);
+      if(x=='.'){
+        ruined_indexs.push(i);
+      }
+      if(x=='..'){
+        ruined_indexs.push(i);
+        ruined_indexs.push(prev_index);
+      }
+    });
+
+    result = result.filter(function(x,i,a){
+      return ruined_indexs.indexOf(i)<0;
+    }).join('/');
+
+    return result;
+
+    function getUnRuinedPrevIndex(i){
+      while( (i-- > -1) && (ruined_indexs.indexOf(i)>-1) ){}
+      return i;
+    }
   }
 
   window.DataNode = DataNode;

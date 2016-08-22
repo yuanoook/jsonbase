@@ -46,14 +46,17 @@
 
   function DataNode(value){
     this.protodata = {
-      value: value,
-    }
+      value: null,
+      node: null,
+      type: 'value'//value|node
+    };
+    this.set(value);
   }
 
   DataNode.prototype = {
     set: function(newValue,onComplete){
       this.protodata.value = newValue;
-      onComplete(null);
+      // onComplete(null);
     },
     get: function(onComplete){
       onComplete(this.protodata.value);

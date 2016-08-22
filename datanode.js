@@ -2,7 +2,6 @@
   function DataNode(value){
     this.type = 'value';//value|node
     this.key = '';
-    this.pathname = '/';
     this.created_at = uniqueMillisecond();
     this.updated_at = uniqueMillisecond();
     this.set(value);

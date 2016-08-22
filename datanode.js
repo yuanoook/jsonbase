@@ -4,10 +4,69 @@
     this.key = '';
     this.created_at = uniqueMillisecond();
     this.updated_at = uniqueMillisecond();
+    this.eventListeners = {};
     this.set(value);
+    eventListeners();
   }
 
   DataNode.prototype = {
+    update: function(update_type,target,ums){
+      target = target || this;
+      var ums = ums || uniqueMillisecond();
+
+      var callbacks = this.eventListeners[update_type];
+      callbacks && callbacks.forEach(function(callback){
+        callback({
+          type: update_type,
+          target: target,
+          ums: ums
+        });
+      });
+
+      switch(update_type){
+        //first class event
+        case 'child_added':
+          this.update('value_changed',this,ums)
+          this.update('descendant_added',target,ums);
+          break;
+        case 'child_removed':
+          this.update('value_changed',this,ums)
+          this.update('descendant_removed',target,ums);
+          break;
+
+        //second class event
+        case 'descendant_added':
+          this.parent && this.parent.update('descendant_added',target,ums);
+          break;
+        case 'descendant_added':
+          this.parent && this.parent.update('descendant_added',target,ums);
+          break;
+
+        //most important event
+        case 'value_changed':
+          this.parent && this.parent.update('value_changed',this.parent,ums);
+          this.updated_at = ums;
+          break;
+      }
+
+      return this;
+    },
+    on: function(update_type,callback){
+      var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
+      callbacks.push(callback);
+    },
+    off: function(update_type,callback){
+      if(update_type){
+        var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
+        if(callback){
+          callbacks.splice(callbacks.indexOf(callback),1);
+        }else{
+          callbacks.length = 0;
+        }
+      }else{
+        this.eventListeners = {};
+      }
+    },
     //##########################  set , get --START #######################
     set: function(newValue){
       //设置新值
@@ -26,8 +85,8 @@
         this.removeChildren();
       }
       delete this[this.type=='node' ? 'value': 'children'];
-      this.updated_at = uniqueMillisecond();
-      return this;
+
+      return this.update('value_changed');
     },
     get: function(){
       //获取值
@@ -86,24 +145,31 @@
         updated_at: importNode.updated_at
       });
       delete this[this.type=='node' ? 'value': 'children'];
-      return this;
+      return this.update('value_changed');
     },
     //##########################  export , import --END #######################
 
     //##########################  addChild , removeChild, removeChildren, getChild, setChild, getChildren --START #######################
+    rootNode: function(){
+      var rootnode;
+      var node = this;
+      while(node = node.parent)
+        rootnode = node;
+      return rootnode;
+    },
     addChild: function(key,node){
       node.remove();
       this.children[key] = node;
       node.key = key;
       node.parent = this;
-      return this;
+      return this.update('child_added',node);
     },
     removeChild: function(key){
       var node = this.children[key];
       delete this.children[key];
       node.key = '';
       delete node.parent;
-      return this;
+      return this.update('child_removed',node);
     },
     remove: function(){
       this.parent && this.parent.removeChild(this.key);

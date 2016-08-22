@@ -8,6 +8,7 @@
 
   DataNode.prototype = {
     set: function(newValue){
+      //设置新值
       if( Object.prototype.toString.call(newValue)=='[object Object]' ){
         this.type = 'node';
         this.children = {};
@@ -16,15 +17,29 @@
             this.children[key] = new DataNode(newValue[key]);
           }
         }
+        delete this.value;
       }else{
         this.type = 'value';
         this.value = newValue;
+        delete this.children;
       }
       this.updated_at = uniqueMillisecond();
       return this;
     },
-    get: function(onComplete){
-      onComplete(this.value);
+    get: function(){
+      //获取值
+      if(this.type=='value'){
+        return this.value;
+      }
+      if(this.type=='node'){
+        var resObj = {};
+        for(var key in this.children){
+          if(this.children.hasOwnProperty(key)){
+            resObj[key] = this.children[key].get();
+          }
+        }
+        return resObj;
+      }
     },
     export: function(){
       //导出静态数据

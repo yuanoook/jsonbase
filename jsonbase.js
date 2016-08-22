@@ -43,37 +43,4 @@
   SnapShot.prototype = {
 
   }
-
-  function DataNode(value){
-    this.protodata = {
-      value: null,
-      node: null,
-      type: 'value'//value|node
-    };
-    this.set(value);
-  }
-
-  DataNode.prototype = {
-    set: function(newValue,onComplete){
-      this.protodata.value = newValue;
-      // onComplete(null);
-    },
-    get: function(onComplete){
-      onComplete(this.protodata.value);
-    },
-    export: function(onComplete){
-      //导出静态数据
-      onComplete( JSON.stringify(this.protodata) );
-    },
-    import: function(str, onComplete){
-      //导入静态数据
-      var err = null;
-      try{
-        this.protodata = JSON.parse(str);
-      }catch(e){
-        err = e;
-      }
-      onComplete(err);
-    }
-  }
 })();

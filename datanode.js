@@ -1,6 +1,8 @@
 !function(){
   function DataNode(value){
     this.type = 'value';//value|node
+    this.key = '';
+    this.pathname = '/';
     this.created_at = uniqueMillisecond();
     this.updated_at = uniqueMillisecond();
     this.set(value);
@@ -67,28 +69,28 @@
     },
     import: function(str){
       //导入静态数据
-      var importObj = {}
-      extend(importObj,JSON.parse(str));
-      if(importObj.type=='node'){
-        for(var key in importObj.children){
-          if( importObj.children.hasOwnProperty(key) ){
-            importObj.children[key] = new DataNode().import( importObj.children[key] );
+      var importNode = new DataNode();
+      extend(importNode,JSON.parse(str));
+      if(importNode.type=='node'){
+        for(var key in importNode.children){
+          if( importNode.children.hasOwnProperty(key) ){
+            importNode.addChild(key, new DataNode().import(importNode.children[key]));
           }
         }
       }
       extend(this,{
-        type: importObj.type,
-        value: importObj.value,
-        children: importObj.children,
-        created_at: importObj.created_at,
-        updated_at: importObj.updated_at
+        type: importNode.type,
+        value: importNode.value,
+        children: importNode.children,
+        created_at: importNode.created_at,
+        updated_at: importNode.updated_at
       });
       delete this[this.type=='node' ? 'value': 'children'];
       return this;
     },
     //##########################  export , import --END #######################
 
-    //##########################  addChild , removeChild, removeChildren, getChild, getChildren --START #######################
+    //##########################  addChild , removeChild, removeChildren, getChild, setChild, getChildren --START #######################
     addChild: function(key,node){
       this.children[key] = node;
       node.key = key;
@@ -98,9 +100,12 @@
     removeChild: function(key){
       var node = this.children[key];
       delete this.children[key];
-      delete node.key;
+      node.key = '';
       delete node.parent;
       return this;
+    },
+    remove: function(){
+      this.parent && this.parent.removeChild(this.key);
     },
     removeChildren: function(){
       for(var key in this.children){
@@ -144,6 +149,16 @@
       return result;
     },
     //##########################  addChild , removeChild, removeChildren, getChild, getChildren --END #######################
+
+    //##########################  pathname --END #######################
+    getPathname: function(){
+      var pathname = this.key;
+      var node = this;
+      while(node = node.parent){
+          pathname = node.key + '/' + pathname;
+      }
+      return pathname;
+    }
   }
 
   function extend(object){

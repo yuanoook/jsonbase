@@ -11,7 +11,8 @@
     //##########################  set , get --START #######################
     set: function(newValue){
       //设置新值
-      if( Object.prototype.toString.call(newValue)=='[object Object]' ){
+      var newValue_type = Object.prototype.toString.call(newValue);
+      if( newValue_type=='[object Object]'||newValue_type=='[object Array]' ){
         this.type = 'node';
         this.children = {};
         for(var key in newValue){
@@ -91,6 +92,7 @@
 
     //##########################  addChild , removeChild, removeChildren, getChild, setChild, getChildren --START #######################
     addChild: function(key,node){
+      node.remove();
       this.children[key] = node;
       node.key = key;
       node.parent = this;
@@ -202,19 +204,3 @@
 
   window.DataNode = DataNode;
 }();
-
-
-
-//TEST
-// var d1 = new DataNode();
-//
-// d1.set({a:1,b:{c:2}});
-//
-// var export_str1 = d1.export();
-// console.log('e1',export_str1);
-//
-// var d2 = new DataNode();
-// d2.import(export_str1);
-//
-// console.log('d1',d1,d1.export());
-// console.log('d2',d2,d2.export());

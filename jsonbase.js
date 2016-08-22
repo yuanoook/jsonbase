@@ -1,8 +1,13 @@
 !(function(){
+  var localJsonBase = {};
+
   var JSONBASE = {};
   window.JSONBASE = JSONBASE;
-  JSONBASE.Reference = function(pathname){
-    return new Reference(pathname);
+  JSONBASE.Reference = function(location){
+    var tmp_span = '-_=-_=-_=-_=-_=-_=-_=-_=-_=-_=-_=';
+    var keys = location.replace(/([^\/]|^)\/([^\/]|$)/g,'$1'+tmp_span+'$2').split(tmp_span);
+    console.log(keys);
+    return new Reference(location);
   }
 
   function Reference(pathname){

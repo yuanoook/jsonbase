@@ -237,36 +237,5 @@
     });
   }
 
-  function combineSrcWithDirectory(src,directory){
-    if(!/^\./.test(src)){return src;}
-
-    var result = directory+src;
-    var ruined_indexs = [];
-
-    result = result.split('/');
-
-    result.map(function(x,i,a){
-      var prev_index = getUnRuinedPrevIndex(i);
-      if(x=='.'){
-        ruined_indexs.push(i);
-      }
-      if(x=='..'){
-        ruined_indexs.push(i);
-        ruined_indexs.push(prev_index);
-      }
-    });
-
-    result = result.filter(function(x,i,a){
-      return ruined_indexs.indexOf(i)<0;
-    }).join('/');
-
-    return result;
-
-    function getUnRuinedPrevIndex(i){
-      while( (i-- > -1) && (ruined_indexs.indexOf(i)>-1) ){}
-      return i;
-    }
-  }
-
   window.DataNode = DataNode;
 }();

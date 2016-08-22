@@ -17,12 +17,11 @@
             this.children[key] = new DataNode(newValue[key]);
           }
         }
-        delete this.value;
       }else{
         this.type = 'value';
         this.value = newValue;
-        delete this.children;
       }
+      delete this[this.type=='node' ? 'value': 'children'];
       this.updated_at = uniqueMillisecond();
       return this;
     },
@@ -44,21 +43,25 @@
     export: function(){
       //导出静态数据
       var exportObj = {};
-      extend(exportObj,this,{children:{}});
+      extend(exportObj,{
+        type: this.type,
+        value: this.value,
+        children: {},
+        created_at: this.created_at,
+        updated_at: this.updated_at
+      });
       if(exportObj.type=='node'){
         for(var key in this.children){
           if(this.children.hasOwnProperty(key)){
             exportObj.children[key] = this.children[key].export();
           }
         }
-      }else{
-        delete exportObj.children;
       }
+      delete exportObj[exportObj.type=='node' ? 'value': 'children'];
       return JSON.stringify(exportObj);
     },
-    import: function(str, onComplete){
+    import: function(str){
       //导入静态数据
-      var err = null;
       var importObj = {}
       extend(importObj,JSON.parse(str));
       if(importObj.type=='node'){
@@ -68,7 +71,14 @@
           }
         }
       }
-      extend(this,importObj);
+      extend(this,{
+        type: importObj.type,
+        value: importObj.value,
+        children: importObj.children,
+        created_at: importObj.created_at,
+        updated_at: importObj.updated_at
+      });
+      delete this[this.type=='node' ? 'value': 'children'];
       return this;
     }
   }

@@ -72,11 +72,17 @@
       //设置新值
       var newValue_type = Object.prototype.toString.call(newValue);
       if( newValue_type=='[object Object]'||newValue_type=='[object Array]' ){
-        this.type = 'node';
-        this.children = {};
-        for(var key in newValue){
-          if( newValue.hasOwnProperty(key) ){
-            this.addChild(key, new DataNode(newValue[key]));
+        if(newValue && newValue['.sv'] && (newValue['.sv']=='timestamp')){
+          this.type = 'value';
+          this.value = uniqueMillisecond();
+          this.removeChildren();
+        }else{
+          this.type = 'node';
+          this.children = {};
+          for(var key in newValue){
+            if( newValue.hasOwnProperty(key) ){
+              this.addChild(key, new DataNode(newValue[key]));
+            }
           }
         }
       }else{

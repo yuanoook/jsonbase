@@ -54,7 +54,7 @@
         return this;
       }
 
-      var keys = pathname.split('/');console.log(keys);
+      var keys = pathname.split('/');
       var node = this.RootDataNode;
       var subnode;
       while( subnode = node.getChild(keys[0]) ){

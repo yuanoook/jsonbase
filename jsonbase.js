@@ -5,6 +5,11 @@
     },
     Reference: function(location){
       return new Reference(location);
+    },
+    ServerValue: {
+      TIMESTAMP: {
+        ".sv": "timestamp"
+      }
     }
   };
 
@@ -38,12 +43,11 @@
         case 'value':
           this.coreDataNode.on('value_changed',function(event){
             var node = event.target;
-            var value = node.get();
-            callback(value);
+            callback( new SnapShot(me) );
           });
           break;
         default:
-
+          break;
       }
     },
     set: function(newValue, onComplete){
@@ -78,12 +82,19 @@
     }
   }
 
-  function SnapShot(){
-
+  function SnapShot(ref){
+    var node = ref.coreDataNode;
+    this.ref = ref;
+    this.value = node.get();
   }
 
   SnapShot.prototype = {
-
+    val: function(){
+      return this.value;
+    },
+    reference: function(){
+      return this.ref
+    }
   }
 
   window.JSONBASE = JSONBASE;

@@ -25,7 +25,7 @@
 
     $('#inputDiv').on('keyup', 'input', function(){
       RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
-      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
+      // RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){
@@ -34,7 +34,7 @@
     }
 
     function resetOneHour(){
-      $.pullValue(RootValue,'updated_at') - new Date().valueOf() > 3600 && RootRef.set({
+      new Date().valueOf() - $.pullValue(RootValue,'updated_at') < 3600 && RootRef.set({
         "name" : "Rango",
         "age" : 16,
         "location" : {

@@ -68,7 +68,7 @@
       }
     },
     //##########################  set , get --START #######################
-    set: function(newValue){
+    set: function(newValue){console.log(this.key,newValue);
       //设置新值
       var newValue_type = Object.prototype.toString.call(newValue);
       if( newValue_type=='[object Object]'||newValue_type=='[object Array]' ){

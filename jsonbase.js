@@ -41,13 +41,13 @@
       var me = this;
       switch (event_type) {
         case 'value':
-          this.coreDataNode.on('value_changed',function(event){
-            var node = event.target;
-            callback( new SnapShot(me) );
-          });
-          break;
+        this.coreDataNode.on('value_changed',function(event){
+          var node = event.target;
+          callback( new SnapShot(me) );
+        });
+        break;
         default:
-          break;
+        break;
       }
     },
     set: function(newValue, onComplete){
@@ -63,7 +63,10 @@
     },
     child: function(pathname){
       var location = this.location.replace(/^\/*|\/*$/g,'') + '/' + pathname.replace(/^\/*|\/*$/g,'');
-      return new Reference(location);
+      console.log('child',pathname,location);
+      var ref = new Reference(location);
+      console.log(ref);
+      return ref;
     },
     push: function(){
 

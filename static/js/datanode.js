@@ -53,8 +53,17 @@
       return this;
     },
     on: function(update_type,callback){
-      var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
-      callbacks.push(callback);
+      var me = this;
+      var types = update_type.split(' ');
+      if(types.length>1){
+        types.forEach(function(update_type){
+          me.on(update_type,callback);
+        });
+      }else{
+        var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
+        callbacks.push(callback);
+      }
+      return this;
     },
     off: function(update_type,callback){
       if(update_type){

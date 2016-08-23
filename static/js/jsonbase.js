@@ -21,7 +21,7 @@
 
     if( !JSONBASE.Singletons[host] ){
       var storageIO = new StorageIO(localStorage,host);
-      var dataCenter = new DataCenter(storageIO);
+      var dataCenter = new DataCenter(storageIO).on('child_added child_removed child_changed',logEvent);
       JSONBASE.Singletons[host] = {
         storageIO: storageIO,
         dataCenter: dataCenter
@@ -34,6 +34,10 @@
     this.location = location;
     this.pathname = pathname;
     this.coreDataNode = dataCenter.pullNode(pathname);
+  }
+
+  function logEvent(event){
+    console.log(event.type,event.ums,event.target);
   }
 
   Reference.prototype = {

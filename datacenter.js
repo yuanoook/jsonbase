@@ -54,16 +54,19 @@
         return this;
       }
 
-      var keys = pathname.split('/');
+      var keys = pathname.split('/');console.log(keys);
       var node = this.RootDataNode;
       var subnode;
-      while( subnode = node.getChild(keys.shift()) )
+      while( subnode = node.getChild(keys[0]) ){
         node = subnode;
+        keys.shift();
+      }
 
       var obj = {};
       var subobj = obj;
-      while(keys.length>1)
+      while(keys.length>1){
         subobj = subobj[ keys.shift() ] = {};
+      }
 
       subobj[keys.shift()] = value;
 

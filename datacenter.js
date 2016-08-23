@@ -36,11 +36,39 @@
       console.log('request for synchronizing!');
       return this;
     },
-    getNode(pathname){
+    getNode: function(pathname){
       return this.RootDataNode.getChild(pathname);
     },
-    setValue(pathname,value){
-      //todo: force add child node in the pathname
+    extend: function(pathname){
+      !this.getNode(pathname) && this.setValue(pathname,null);
+      return this;
+    },
+    pullNode: function(pathname){
+      this.extend(pathname);
+      return this.getNode(pathname);
+    },
+    setValue: function(pathname,value){
+      var childNode = this.getNode(pathname);
+      if(childNode){
+        childNode.set(value);
+        return this;
+      }
+
+      var keys = pathname.split('/');
+      var node = this.RootDataNode;
+      var subnode;
+      while( subnode = node.getChild(keys.shift()) )
+        node = subnode;
+
+      var obj = {};
+      var subobj = obj;
+      while(keys.length>1)
+        subobj = subobj[ keys.shift() ] = {};
+
+      subobj[keys.shift()] = value;
+
+      node.set(obj);
+      return this;
     }
   }
 

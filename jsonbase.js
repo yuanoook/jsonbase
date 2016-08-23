@@ -14,7 +14,7 @@
     var dataCenter = new DataCenter(storageIO);
 
     this.dataCenter = dataCenter;
-    this.coreDataNode = dataCenter.getNode(pathname);
+    this.coreDataNode = dataCenter.pullNode(pathname);
   }
 
   Reference.prototype = {

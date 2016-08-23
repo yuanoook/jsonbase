@@ -10,12 +10,13 @@
 
   DataNode.prototype = {
     update: function(update_type,target,ums){
+      var me = this;
       target = target || this;
       var ums = ums || uniqueMillisecond();
 
       var callbacks = this.eventListeners[update_type];
       callbacks && callbacks.forEach(function(callback){
-        callback({
+        callback.call(me,{
           type: update_type,
           target: target,
           ums: ums

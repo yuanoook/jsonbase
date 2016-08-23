@@ -6,7 +6,8 @@
   JSONBASE.Reference = function(location){
     var invisible_char = '\032';
     var keys = location.replace(/([^\/]|^)\/([^\/]|$)/g,'$1'+invisible_char+'$2').split(invisible_char);
-    console.log(keys);
+    var host = keys.shift();
+    var pathname = keys.join('/');
     return new Reference(location);
   }
 

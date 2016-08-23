@@ -19,7 +19,18 @@
 
   Reference.prototype = {
     on: function(event_type,callback){
-      console.log(event_type);
+      var me = this;
+      switch (event_type) {
+        case 'value':
+          this.coreDataNode.on('value_changed',function(event){
+            var node = event.target;
+            var value = node.get();
+            callback(value);
+          });
+          break;
+        default:
+
+      }
     },
     set: function(newValue, onComplete){
       var newValue_type = Object.prototype.toString.call(newValue);

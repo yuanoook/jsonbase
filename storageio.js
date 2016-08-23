@@ -26,11 +26,12 @@
       }
     },
     change: function(callback){
+      var me = this;
       if(callback){
         this.changecallbacks.push(callback);
       }else{
         this.changecallbacks.forEach(function(callback){
-          callback( this.obj[this.key] );
+          callback( me.obj[me.key] );
         });
       }
     },

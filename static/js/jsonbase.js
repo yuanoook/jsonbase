@@ -90,6 +90,7 @@
     var node = ref.coreDataNode;
     this.ref = ref;
     this.value = node.get();
+    console.log(this.value);
   }
 
   SnapShot.prototype = {

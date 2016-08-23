@@ -141,6 +141,8 @@
         for(var key in importNode.children){
           if( importNode.children.hasOwnProperty(key) ){
             importNode.addChild(key, new DataNode().import(importNode.children[key]));
+            //update children's parent
+            importNode.children[key].parent = this;
           }
         }
       }

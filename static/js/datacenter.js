@@ -28,7 +28,9 @@
       return this.RootDataNode.export();
     },
     change: function(callback){
-      this.RootDataNode.on('value_changed',callback);
+      this.RootDataNode.on('value_changed',function(){
+        callback();
+      });
       return this;
     },
     synchronize: function(){

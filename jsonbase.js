@@ -1,19 +1,20 @@
 !(function(){
-  var localJsonBase = {};
-
   var JSONBASE = {};
-  window.JSONBASE = JSONBASE;
   JSONBASE.Reference = function(location){
+    return new Reference(location);
+  }
+
+  function Reference(location){
     var invisible_char = '\032';
     var keys = location.replace(/([^\/]|^)\/([^\/]|$)/g,'$1'+invisible_char+'$2').split(invisible_char);
     var host = keys.shift();
     var pathname = keys.join('/');
-    return new Reference(location);
-  }
 
-  function Reference(pathname){
-    this.DataNode = new DataNode();
-    console.log(pathname);
+    var storageIO = new StorageIO(localStorage,host);
+    var dataCenter = new DataCenter(storageIO);
+
+    this.dataCenter = dataCenter;
+    this.coreDataNode = dataCenter.getNode(pathname);
   }
 
   Reference.prototype = {
@@ -26,7 +27,10 @@
         return this.remove(onComplete);
       }
 
-      // this.
+      this.coreDataNode.set(newValue);
+      onComplete && onComplete();
+
+      return this;
     },
     push: function(){
 
@@ -39,6 +43,9 @@
     },
     transaction: function(func){
 
+    },
+    randomKey: function(prefix){
+      return  (prefix||"")+((new Date).valueOf().toString(36)+Math.random().toString(36)).split("0.").join("_").substr(0,20)
     }
   }
 
@@ -49,4 +56,6 @@
   SnapShot.prototype = {
 
   }
+
+  window.JSONBASE = JSONBASE;
 })();

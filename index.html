@@ -6,11 +6,13 @@
   <title>JSONBASE</title>
   <script src ="./ums.js" ></script>
   <script src ="./datanode.js" ></script>
+  <script src ="./storageio.js" ></script>
+  <script src ="./datacenter.js" ></script>
   <script src ="./jsonbase.js" ></script>
   <script src="//fe.yuanoook.com/static/js/jquery.plus.min.js"></script>
   <script>
   $(function(){
-    var RootRef = JSONBASE.Reference("https://yuanoook.wilddogio.com/");
+    RootRef = JSONBASE.Reference("https://localJsonDataBase.com/yuanoook");
     var RootValue;
 
     RootRef.on("value",function(snapshot){

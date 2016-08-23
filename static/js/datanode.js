@@ -9,65 +9,65 @@
   }
 
   DataNode.prototype = {
-    update: function(update_type,target,ums){
+    trigger: function(event_type,target,ums){
       var me = this;
       target = target || this;
       var ums = ums || uniqueMillisecond();
 
-      var callbacks = this.eventListeners[update_type];
+      var callbacks = this.eventListeners[event_type];
       callbacks && callbacks.forEach(function(callback){
         callback.call(me,{
-          type: update_type,
+          type: event_type,
           target: target,
           ums: ums
         });
       });
 
-      switch(update_type){
+      switch(event_type){
         //first class event
         case 'child_added':
-          this.update('value_changed',this,ums)
-          this.update('descendant_added',target,ums);
+          this.trigger('value_changed',this,ums)
+          this.trigger('descendant_added',target,ums);
           break;
         case 'child_removed':
-          this.update('value_changed',this,ums)
-          this.update('descendant_removed',target,ums);
+          this.trigger('value_changed',this,ums)
+          this.trigger('descendant_removed',target,ums);
           break;
 
         //second class event
         case 'descendant_added':
-          this.parent && this.parent.update('descendant_added',target,ums);
+          this.parent && this.parent.trigger('descendant_added',target,ums);
           break;
         case 'descendant_added':
-          this.parent && this.parent.update('descendant_added',target,ums);
+          this.parent && this.parent.trigger('descendant_added',target,ums);
           break;
 
         //most important event
         case 'value_changed':
-          this.parent && this.parent.update('child_changed',this,ums);
-          this.parent && this.parent.update('value_changed',this.parent,ums);
+          this.parent && this.parent.trigger('child_changed',this,ums);
+          this.parent && this.parent.trigger('value_changed',this.parent,ums);
           this.updated_at = ums;
           break;
       }
 
       return this;
     },
-    on: function(update_type,callback){
+    on: function(event_type,callback){
       var me = this;
-      var types = update_type.split(' ');
+      var types = event_type.split(' ');
       if(types.length>1){
-        types.forEach(function(update_type){
-          me.on(update_type,callback);
+        types.forEach(function(event_type){
+          me.on(event_type,callback);
         });
       }else{
-        var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
+        var callbacks = this.eventListeners[event_type] = this.eventListeners[event_type] || [];
         callbacks.push(callback);
       }
       return this;
     },
-    off: function(update_type,callback){
-      if(update_type){
-        var callbacks = this.eventListeners[update_type] = this.eventListeners[update_type] || [];
+    off: function(event_type,callback){
+      if(event_type){
+        var callbacks = this.eventListeners[event_type] = this.eventListeners[event_type] || [];
         if(callback){
           callbacks.splice(callbacks.indexOf(callback),1);
         }else{
@@ -79,21 +79,15 @@
     },
     //##########################  set , get --START #######################
     set: function(newValue){
-      //console.log(this.key,newValue);
       //设置新值
+      // console.log(newValue);
       var newValue_type = Object.prototype.toString.call(newValue);
       if( newValue_type=='[object Object]'||newValue_type=='[object Array]' ){
-        if(newValue && newValue['.sv'] && (newValue['.sv']=='timestamp')){
-          this.type = 'value';
-          this.value = uniqueMillisecond();
-          this.removeChildren();
-        }else{
-          this.type = 'node';
-          this.children = {};
-          for(var key in newValue){
-            if( newValue.hasOwnProperty(key) ){
-              this.addChild(key, new DataNode(newValue[key]));
-            }
+        this.type = 'node';
+        this.children = {};
+        for(var key in newValue){
+          if( newValue.hasOwnProperty(key) ){
+            this.addChild(key, new DataNode(newValue[key]));
           }
         }
       }else{
@@ -103,7 +97,7 @@
       }
       delete this[this.type=='node' ? 'value': 'children'];
 
-      return this.update('value_changed');
+      return this.trigger('value_changed');
     },
     update: function(updateObj){
       var updateObj_type = Object.prototype.toString.call(updateObj);
@@ -185,7 +179,7 @@
         updated_at: importNode.updated_at
       });
       delete this[this.type=='node' ? 'value': 'children'];
-      return this.update('value_changed');
+      return this.trigger('value_changed');
     },
     //##########################  export , import --END #######################
 
@@ -199,17 +193,18 @@
     },
     addChild: function(key,node){
       node.remove();
+      this.children = this.children || {};
       this.children[key] = node;
       node.key = key;
       node.parent = this;
-      return this.update('child_added',node);
+      return this.trigger('child_added',node);
     },
     removeChild: function(key){
       var node = this.children[key];
       delete this.children[key];
       node.key = '';
       delete node.parent;
-      return this.update('child_removed',node);
+      return this.trigger('child_removed',node);
     },
     remove: function(){
       this.parent && this.parent.removeChild(this.key);

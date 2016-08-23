@@ -19,13 +19,14 @@
       RootValue = snapshot.val();
       resetOneHour();
       render();
+      // console.log('-----------');
     },function(err){
       console.log(err);
     });
 
     $('#inputDiv').on('keyup', 'input', function(){
       RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
-      // RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
+      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){

@@ -33,7 +33,7 @@
     },
     synchronize: function(){
       //only change with difference
-      console.log('request for synchronizing!');
+      // console.log('request for synchronizing!');
       return this;
     },
     getNode: function(pathname){

@@ -72,6 +72,8 @@
         default:
         break;
       }
+
+      return this;
     },
     set: function(newValue, onComplete){
       var newValue_type = Object.prototype.toString.call(newValue);

@@ -21,16 +21,19 @@
       render();
     },function(err){
       console.log(err);
+    }).on('child_changed',function(snapshot){
+      var ref = snapshot.reference();
     });
 
     $('#inputDiv').on('keyup', 'input', function(){
       RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
+      //TODO: 这里的 child 不能有 update_at, 有空找到这个 bug
       RootRef.child('last_update').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){
       $('#outputDiv').render(RootValue);
-      $('#inputDiv:not(.rendered)').render(RootValue);
+      $('#inputDiv').render(RootValue);
     }
 
     function resetOneHour(){

@@ -102,6 +102,8 @@
     update: function(updateObj){
       var updateObj_type = Object.prototype.toString.call(updateObj);
       if( updateObj_type=='[object Object]'||updateObj_type=='[object Array]' ){
+        this.type = 'node';
+        this.children = this.children || {};
         for(var key in updateObj){
           if( updateObj.hasOwnProperty(key) ){
             var childNode = this.getChild(key);
@@ -113,10 +115,12 @@
           }
         }
       }else{
+        this.type = 'value';
         if(this.get()!=updateObj){
           this.set(updateObj);
         }
       }
+      delete this[this.type=='node' ? 'value': 'children'];
 
       return this;
     },
@@ -193,7 +197,6 @@
     },
     addChild: function(key,node){
       node.remove();
-      this.children = this.children || {};
       this.children[key] = node;
       node.key = key;
       node.parent = this;

@@ -71,7 +71,6 @@
       }
 
       subobj[keys.shift()] = value;
-
       node.update(obj);
       return this;
     }

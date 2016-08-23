@@ -33,9 +33,8 @@
       });
       return this;
     },
-    synchronize: function(){
-      //only change with difference
-      // console.log('request for synchronizing!');
+    synchronize: function(str){
+      this.RootDataNode.update(new DataNode().import(str).get());
       return this;
     },
     getNode: function(pathname){

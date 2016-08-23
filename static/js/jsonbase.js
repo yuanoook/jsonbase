@@ -54,19 +54,19 @@
         case 'child_added':
           this.coreDataNode.on('child_added',function(event){
             var node = event.target;
-            console.log(event.ums,node);
+            callback( new SnapShot(me.child(node.key)) );
           });
           break;
         case 'child_removed':
           this.coreDataNode.on('child_removed',function(event){
             var node = event.target;
-            console.log(event.ums,node);
+            callback( new SnapShot(me.child(node.key)) );
           });
           break;
         case 'child_changed':
           this.coreDataNode.on('child_changed',function(event){
             var node = event.target;
-            console.log(event.ums,node);
+            callback( new SnapShot(me.child(node.key)) );
           });
           break;
         default:

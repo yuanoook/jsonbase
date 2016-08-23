@@ -105,6 +105,27 @@
 
       return this.update('value_changed');
     },
+    update: function(updateObj){
+      var updateObj_type = Object.prototype.toString.call(updateObj);
+      if( updateObj_type=='[object Object]'||obj_type=='[object Array]' ){
+        for(var key in updateObj){
+          if( updateObj.hasOwnProperty(key) ){
+            var childNode = this.getChild(key);
+            if(childNode){
+              childNode.update(updateObj[key])
+            }else{
+              this.addChild(key, new DataNode(updateObj[key]));
+            }
+          }
+        }
+      }else{
+        if(this.get()!=updateObj){
+          this.set(updateObj);
+        }
+      }
+
+      return this;
+    },
     get: function(){
       //获取值
       if(this.type=='value'){

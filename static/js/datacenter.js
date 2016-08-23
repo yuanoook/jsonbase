@@ -71,7 +71,7 @@
       }
 
       subobj[keys.shift()] = value;
-
+      console.log('obj',obj);
       node.set(obj);
       return this;
     }

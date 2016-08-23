@@ -107,7 +107,7 @@
     },
     update: function(updateObj){
       var updateObj_type = Object.prototype.toString.call(updateObj);
-      if( updateObj_type=='[object Object]'||obj_type=='[object Array]' ){
+      if( updateObj_type=='[object Object]'||updateObj_type=='[object Array]' ){
         for(var key in updateObj){
           if( updateObj.hasOwnProperty(key) ){
             var childNode = this.getChild(key);

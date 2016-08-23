@@ -44,6 +44,7 @@
 
         //most important event
         case 'value_changed':
+          this.parent && this.parent.update('child_changed',this,ums);
           this.parent && this.parent.update('value_changed',this.parent,ums);
           this.updated_at = ums;
           break;

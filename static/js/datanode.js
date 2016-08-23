@@ -81,8 +81,7 @@
     set: function(newValue){
       //设置新值
       if( newValue && newValue['.sv'] && newValue['.sv']=='timestamp' ){
-        var ums = uniqueMillisecond();
-        return this.set(ums);
+        return this.set( uniqueMillisecond() );
       }
 
       var newValue_type = Object.prototype.toString.call(newValue);

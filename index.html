@@ -26,7 +26,7 @@
 
     $('#inputDiv').on('keyup', 'input', function(){
       RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
-      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
+      RootRef.child('updated_bt').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){
@@ -42,7 +42,7 @@
           "city" : "ShenZhen",
           "zip" : 518000
         },
-        "updated_at": JSONBASE.ServerValue.TIMESTAMP
+        "updated_bt": JSONBASE.ServerValue.TIMESTAMP
       });
     }
   });
@@ -68,7 +68,7 @@
       <p>age: <span data-src="age"></span></p>
       <p>location.city: <span data-src="location.city"></span></p>
       <p>location.zip: <span data-src="location.zip"></span></p>
-      <p>updated_at: <span data-src="updated_at"></span></p>
+      <p>updated_bt: <span data-src="updated_bt"></span></p>
     </div>
   </fieldset>
 </body>

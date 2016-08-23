@@ -80,7 +80,11 @@
     //##########################  set , get --START #######################
     set: function(newValue){
       //设置新值
-      // console.log(newValue);
+      if( newValue && newValue['.sv'] && newValue['.sv']=='timestamp' ){
+        var ums = uniqueMillisecond();
+        return this.set(ums);
+      }
+
       var newValue_type = Object.prototype.toString.call(newValue);
       if( newValue_type=='[object Object]'||newValue_type=='[object Array]' ){
         this.type = 'node';

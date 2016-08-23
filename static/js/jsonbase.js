@@ -74,9 +74,6 @@
       }
     },
     set: function(newValue, onComplete){
-      newValue = (newValue && newValue['.sv'] && newValue['.sv']=='timestamp') ? uniqueMillisecond() : newValue;
-
-      console.log(this.coreDataNode.key,newValue);
       var newValue_type = Object.prototype.toString.call(newValue);
       if('[object Undefined]'==newValue_type || '[object Null]'==newValue_type){
         return this.remove(onComplete);
@@ -88,9 +85,6 @@
       return this;
     },
     update: function(updateObj, onComplete){
-      updateObj = (updateObj && updateObj['.sv'] && updateObj['.sv']=='timestamp') ? uniqueMillisecond() : updateObj;
-
-      console.log(this.coreDataNode.key,updateObj);
       var updateObj_type = Object.prototype.toString.call(updateObj);
       if('[object Undefined]'==updateObj_type || '[object Null]'==updateObj_type){
         return this.remove(onComplete);
@@ -102,9 +96,7 @@
     },
     child: function(pathname){
       var location = this.location.replace(/^\/*|\/*$/g,'') + '/' + pathname.replace(/^\/*|\/*$/g,'');
-      console.log('child',pathname,location);
       var ref = new Reference(location);
-      // console.log(ref);
       return ref;
     },
     push: function(){

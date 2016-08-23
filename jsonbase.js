@@ -1,8 +1,12 @@
 !(function(){
-  var JSONBASE = {};
-  JSONBASE.Reference = function(location){
-    return new Reference(location);
-  }
+  var JSONBASE = {
+    Singletons: {
+
+    },
+    Reference: function(location){
+      return new Reference(location);
+    }
+  };
 
   function Reference(location){
     var invisible_char = '\032';
@@ -10,10 +14,20 @@
     var host = keys.shift();
     var pathname = keys.join('/');
 
-    var storageIO = new StorageIO(localStorage,host);
-    var dataCenter = new DataCenter(storageIO);
+    if( !JSONBASE.Singletons[host] ){
+      var storageIO = new StorageIO(localStorage,host);
+      var dataCenter = new DataCenter(storageIO);
+      JSONBASE.Singletons[host] = {
+        storageIO: storageIO,
+        dataCenter: dataCenter
+      }
+    }
 
-    this.dataCenter = dataCenter;
+    var storageIO = JSONBASE.Singletons[host]['storageIO'];
+    var dataCenter = JSONBASE.Singletons[host]['dataCenter'];
+
+    this.location = location;
+    this.pathname = pathname;
     this.coreDataNode = dataCenter.pullNode(pathname);
   }
 
@@ -42,6 +56,10 @@
       onComplete && onComplete();
 
       return this;
+    },
+    child: function(pathname){
+      var location = this.location.replace(/^\/*|\/*$/g,'') + '/' + pathname.replace(/^\/*|\/*$/g,'');
+      return new Reference(location);
     },
     push: function(){
 

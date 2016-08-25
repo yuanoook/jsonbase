@@ -14,6 +14,7 @@
   $(function(){
     RootRef = JSONBASE.Reference("https://localJsonDataBase.com/yuanoook");
     var RootValue;
+    var reset_timer;
 
     RootRef.on("value",function(snapshot){
       RootValue = snapshot.val();
@@ -27,8 +28,7 @@
 
     $('#inputDiv').on('keyup', 'input', function(){
       RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
-      //TODO: 这里的 child 不能有 update_at, 有空找到这个 bug
-      RootRef.child('last_update').set(JSONBASE.ServerValue.TIMESTAMP);
+      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){
@@ -37,15 +37,23 @@
     }
 
     function resetOneHour(){
-      new Date().valueOf() - $.pullValue(RootValue,'updated_at') < 3600 && RootRef.set({
-        "name" : "Rango",
-        "age" : 16,
-        "location" : {
-          "city" : "ShenZhen",
-          "zip" : 518000
-        },
-        "last_update": JSONBASE.ServerValue.TIMESTAMP
-      });
+      //防止高频循环更新
+      clearTimeout(reset_timer);
+      reset_timer = setTimeout(reset,100);
+
+      function reset(){
+        var updated_at_timespan = new Date().valueOf() - $.pullValue(RootValue,'updated_at')||0;
+        (!updated_at_timespan || updated_at_timespan > 3600*1000) && RootRef.set({
+          "name" : "Rango",
+          "age" : 25,
+          "email": "yuanoook@foxmail.com",
+          "location" : {
+            "city" : "ShenZhen",
+            "zip" : 518000
+          },
+          "updated_at": JSONBASE.ServerValue.TIMESTAMP
+        });
+      }
     }
   });
   </script>
@@ -57,6 +65,7 @@
     <div id="inputDiv">
       <p>name: <input data-src="name"></p>
       <p>age: <input data-src="age"></p>
+      <p>email: <input data-src="email"></p>
       <p>location.city: <input data-src="location.city"></p>
       <p>location.zip: <input data-src="location.zip"></p>
     </div>
@@ -68,9 +77,10 @@
     <div id="outputDiv">
       <p>name: <span data-src="name"></span></p>
       <p>age: <span data-src="age"></span></p>
+      <p>email: <span data-src="email"></span></p>
       <p>location.city: <span data-src="location.city"></span></p>
       <p>location.zip: <span data-src="location.zip"></span></p>
-      <p>last_update: <span data-src="last_update"></span></p>
+      <p>updated_at: <span data-src="updated_at"></span></p>
     </div>
   </fieldset>
 </body>

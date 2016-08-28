@@ -143,9 +143,28 @@
       var value =  JSON.parse(set_log[3]);
       var old_value = JSON.parse(set_log[4]);
 
+      var new_pathnames = listPathnames('',value);
+      var old_pathnames = listPathnames('',old_value);
+
       var event_log = [
-          when,pathname,+/-,+/-,N/V,value
+          // when,pathname,+/-,+/-,N/V,value
       ];
+
+      function addEvent(){
+
+      }
+
+
+      function listPathnames(pathname,obj){
+        var result = [pathname];
+        if( !isNode(obj) ){
+          return result;
+        }
+        for(var key in obj) obj.hasOwnProperty(key) && (
+            result = result.concat( listPathnames(pathname+'/'+key,obj[key]) )
+        );
+        return result;
+      }
     },
     deliverEvents: function(Events){
 

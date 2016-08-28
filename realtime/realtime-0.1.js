@@ -137,23 +137,55 @@
       return this;
     },
     logEvent: function(set_log){
-      // [when,pathname,+/-,+/-,N/V,value]
+      var me = this;
       var when = set_log[1];
       var pathname = set_log[2]
       var value =  JSON.parse(set_log[3]);
       var old_value = JSON.parse(set_log[4]);
 
-      var new_pathnames = listPathnames('',value);
-      var old_pathnames = listPathnames('',old_value);
+      //find the diff between value and old_value;
+      var new_pathnames = listPathnames('/',value);
+      var old_pathnames = listPathnames('/',old_value);
+      var all_pathnames = uniqueArray(new_pathnames.concat(old_pathnames));
 
-      var event_log = [
-          // when,pathname,+/-,+/-,N/V,value
+      var value_subhost = {data:value};
+      var old_value_subhost = {data:old_value};
+      var differences = [
+        // [pathname,path_value,path_old_value]
       ];
+      all_pathnames.forEach(function(pathname){
+        var path_value = me.pullValue.call(value_subhost,pathname);
+        var path_old_value = me.pullValue.call(old_value_subhost,pathname);
+        //if both is node, no different; both is value and equal, no different
+        var is_different = (
+          !isNode(path_value) || !isNode(path_old_value)
+        ) && (
+          path_value!==path_old_value
+        );
+        //if different, log a difference
+        is_different && differences.push([pathname,path_value,path_old_value]);
+      });
 
-      function addEvent(){
+      var new_event_logs = differences.map(function(difference){
+        var pathname = difference[0];
+        var path_value = difference[1];
+        var path_old_value = difference[2];
 
-      }
+        // [when,pathname,+/-,+/-,N/V,value,old_value]
+        var current_existed = !isNull(path_value);
+        var past_existed = isNull(path_old_value);
+        var path_value_type = isNode(path_value) ? 'N' : 'V';
 
+        var new_event_log = [when, pathname, past_existed, current_existed, path_value_type, path_value, path_old_value];
+
+        //log the event;
+        me.event_logs.push(new_event_log);
+        return new_event_log;
+      });
+
+      deliverEvents(new_event_logs);
+
+      return this;
 
       function listPathnames(pathname,obj){
         var result = [pathname];
@@ -166,8 +198,16 @@
         return result;
       }
     },
-    deliverEvents: function(Events){
-
+    deliverEvents: function(events){
+      // [when,pathname,+/-,+/-,N/V,value,old_value]
+      /*
+        TODO: analysis high-class event_type and deliver
+        high-class event_types:
+          child_removed
+          child_added
+          child_changed
+          value
+      */
     },
     addEventListener: function(who,pathname,event_type){
 

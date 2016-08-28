@@ -4,12 +4,12 @@
   <meta charset = "utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
   <title>JSONBASE</title>
-  <script src="./realtime/client.js" ></script>
-  <script src="./realtime/index.js" ></script>
+  <script src="./static/js/ums.js"></script>
   <script src="./static/js/jquery.plus.min.js"></script>
+  <script src="./realtime/realtime-0.1.js" ></script>
   <script>
   $(function(){
-    RootRef = JSONBASE.Reference("https://localJsonDataBase.com/yuanoook");
+    RootRef = JSONBASE.Reference();
     var RootValue;
     var reset_timer;
 

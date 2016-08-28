@@ -49,10 +49,10 @@
 
   function Host(){
     this.data = {};
-    this.set_log = [
+    this.set_logs = [
       // [who,when,pathname,value,old_value]
     ];
-    this.event_log = [
+    this.event_logs = [
       // [when,pathname,+/-,+/-,N/V,value]
     ];
   }
@@ -64,10 +64,10 @@
         this.data = value;
         return this;
       }
-      pathname = pathname.replace(/^\//,'');//for split
+      keys_string = pathname.replace(/^\//,'');//for split
       var subkey,
       subobj = this.data,
-      keys_arr = pathname.split('/');
+      keys_arr = keys_string.split('/');
       while(keys_arr.length>1)(
         subkey = keys_arr.shift(),
         subobj = subobj[subkey] = (
@@ -76,11 +76,19 @@
           : {}
         )
       )
-      subobj[ keys_arr.shift() ] = value;
+      if(value === null){
+        delete subobj[ keys_arr.shift() ];
+      }else{
+        subobj[ keys_arr.shift() ] = value;
+      }
       return this;
     },
     pullValue: function(pathname){//private method
-      var keys_arr = pathname.split('/');
+      if(pathname=='/'){
+        return this.data;
+      }
+      keys_string = pathname.replace(/^\//,'');//for split
+      var keys_arr = keys_string.split('/');
       var subobj = this.data;
       try{
         while(keys_arr.length)
@@ -106,8 +114,9 @@
         this.pushValue(pathname,value);
       }catch(e){
         callback && callback(e.toString());
+        return this;
       }
-  
+
       this.logSet(who,pathname,value,old_value);
       callback() && callback();
       return this;
@@ -116,13 +125,27 @@
       return pathname=='/' || isNode(this.pullValue(getParentPathname(pathname)))
     },
     get: function(who,pathname,callback){
-
+      callback && callback( this.pullValue(pathname) );
     },
-    logSet: function(who,pathname,new_value,old_value){
-
+    logSet: function(who,pathname,value,old_value){
+      // [who,when,pathname,value,old_value]
+      var set_log = [
+          who, uniqueMillisecond(), pathname, JSON.stringify(value), JSON.stringify(old_value)
+      ];
+      this.set_logs.push(set_log);
+      logEvent(set_log);
+      return this;
     },
     logEvent: function(set_log){
+      // [when,pathname,+/-,+/-,N/V,value]
+      var when = set_log[1];
+      var pathname = set_log[2]
+      var value =  JSON.parse(set_log[3]);
+      var old_value = JSON.parse(set_log[4]);
 
+      var event_log = [
+          when,pathname,+/-,+/-,N/V,value
+      ];
     },
     deliverEvents: function(Events){
 

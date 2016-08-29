@@ -19,6 +19,7 @@
     this.id = uniqueMillisecond();
     this.Host = RAMHost;
     this.pathname = pathname;
+    this.Host.clients[this.id] = this;
   }
 
   Reference.prototype = {
@@ -31,8 +32,18 @@
       return this;
     },
     on: function(event_type,callback){
-      this.Host.addEventListener(this.id,this.pathname,event_type,callback);
+      this.Host.addEventListener(this.id,this.pathname,event_type);
+      this.eventListener[event_type] = this.eventListener[event_type] || [];
+      this.eventListener[event_type].push(callback);
       return this;
+    },
+    receiveEvent: function(event_type,e){
+      //TODO: wrap the e to snapshot
+      console.log(e);
+      this.eventListener[event_type] = this.eventListener[event_type] || [];
+      this.eventListener[event_type].forEach(function(callback){
+        callback(e);
+      });
     },
     child: function(pathname){
       var childPahtname = this.pathname+'/'+pathname;
@@ -49,6 +60,15 @@
 
   function Host(){
     this.data = {};
+    this.clients = {};
+    this.listened_events = {
+      // pathname: {
+      //   event_type: [
+      //     who1, who2, who3
+      //   ]
+      // }
+      // see export_events
+    };
     this.set_logs = [
       // [who,when,pathname,value,old_value]
     ];
@@ -207,20 +227,22 @@
       var me = this;
       // [when,pathname,+/-,+/-,N/V,value,old_value]
       /*
-      TODO: analysis high-class event_type and deliver
-      high-class event_types:
-      child_removed
-      child_added
-      child_changed
-      value
+        TODO: analysis high-class event_type and deliver
+          high-class event_types:
+            child_removed
+            child_added
+            child_changed
+            value
       */
       var export_events = {
         // pathname: {
         //   event_type: {
         //      value: value,
         //      old_value: old_value
+        //      child_key: child_key
         //   }
         // }
+        // see this.listened_events
       };
 
       events.forEach(function(e){
@@ -271,10 +293,27 @@
       }
     },
     deliverEvents: function(export_events){
+      for(var pathname in export_events){
+        if(!export_events.hasOwnProperty(pathname)){continue;}
+        var events = export_events[pathname];
+        for(event_type in events){
+          if(!events.hasOwnProperty(event_type)){continue;}
+          if(this.listened_events[pathname] && this.listened_events[pathname][event_type])
+          this.listened_events[pathname][event_type].forEach(function(who){
+            notifyEvent(who,event_type,events[event_type]);
+          });
+        }
+      }
       return this;
     },
     addEventListener: function(who,pathname,event_type){
+      this.listened_events[pathname] = this.listened_events[pathname]||{};
+      this.listened_events[pathname][event_type] = this.listened_events[pathname][event_type]||[];
+      this.listened_events[pathname][event_type].push(who);
       return this;
+    },
+    notifyEvent: function(who,event_type,e){
+      this.clients[who].receiveEvent(event_type,e);
     }
   }
 

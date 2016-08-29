@@ -98,6 +98,10 @@
         return;
       }
     },
+    backupOldData: function(){
+      this.old_data = copyValue(this.data);
+      return this;
+    },
     set: function(who,pathname,setter,callback){
       if( !this.isSetable(pathname) ){
         callback && callback('Error: Parent node cannot be found!')//prevent to set new value under not-a-node that may overwrite existed-value
@@ -111,6 +115,7 @@
         return this;
       }
       try{
+        this.backupOldData();
         this.pushValue(pathname,value);
       }catch(e){
         callback && callback(e.toString());
@@ -130,7 +135,7 @@
     logSet: function(who,pathname,value,old_value){
       // [who,when,pathname,value,old_value]
       var set_log = [
-          who, uniqueMillisecond(), pathname, JSON.stringify(value), JSON.stringify(old_value)
+        who, uniqueMillisecond(), pathname, JSON.stringify(value), JSON.stringify(old_value)
       ];
       this.set_logs.push(set_log);
       logEvent(set_log);
@@ -183,7 +188,7 @@
         return new_event_log;
       });
 
-      deliverEvents(new_event_logs);
+      exportEvents(new_event_logs);
 
       return this;
 
@@ -193,24 +198,83 @@
           return result;
         }
         for(var key in obj) obj.hasOwnProperty(key) && (
-            result = result.concat( listPathnames(pathname+'/'+key,obj[key]) )
+          result = result.concat( listPathnames(pathname+'/'+key,obj[key]) )
         );
         return result;
       }
     },
-    deliverEvents: function(events){
+    exportEvents: function(events){
+      var me = this;
       // [when,pathname,+/-,+/-,N/V,value,old_value]
       /*
-        TODO: analysis high-class event_type and deliver
-        high-class event_types:
-          child_removed
-          child_added
-          child_changed
-          value
+      TODO: analysis high-class event_type and deliver
+      high-class event_types:
+      child_removed
+      child_added
+      child_changed
+      value
       */
+      var export_events = {
+        // pathname: {
+        //   event_type: {
+        //      value: value,
+        //      old_value: old_value
+        //   }
+        // }
+      };
+
+      events.forEach(function(e){
+        var pathname = e[1];
+        var past_existed = e[2];
+        var current_existed = e[3];
+        var type = e[4];
+        var value = e[5];
+        var old_value = e[6];
+
+        addExportEvent(pathname,'value',value,old_value);
+
+        var parent_pathname = getParentPathname(pathname);
+        if(parent_pathname==pathname){return;}
+
+        var child_key = pathname.replace(/^.*?([^\/]*)$/,'$1');
+        var parent_event_type;
+         past_existed &&  current_existed && (parent_event_type=='child_changed');
+         past_existed && !current_existed && (parent_event_type=='child_removed');
+        !past_existed &&  current_existed && (parent_event_type=='child_added');
+
+        addExportEvent(parent_pathname,parent_event_type,value,old_value,child_key);
+      });
+
+      this.deliverEvents( copyValue(export_events) );
+
+      return this;
+
+      function addExportEvent(pathname,event_type,value,old_value,child_key){
+        (export_events[pathname] = export_events[pathname] || {})[event_type] = {value:value,old_value:old_value,key:child_key};
+
+        if(pathname==getParentPathname(pathname)){return;}
+
+        if( event_type=='value' ){
+          pathname = getParentPathname(pathname);//bubble the event
+          value = me.pullValue(pathname);
+          old_value = me.pullValue.call({data:this.old_data},pathname);
+          addExportEvent(pathname,event_type,value,old_value);
+        }
+
+        if( event_type=='child_changed' ){
+          child_key = pathname.replace(/^.*?([^\/]*)$/,'$1');
+          value = me.pullValue(pathname);
+          old_value = me.pullValue.call({data:this.old_data},pathname);
+          pathname = getParentPathname(pathname);//bubble the event
+          addExportEvent(pathname,event_type,value,old_value,child_key);
+        }
+      }
+    },
+    deliverEvents: function(export_events){
+      return this;
     },
     addEventListener: function(who,pathname,event_type){
-
+      return this;
     }
   }
 

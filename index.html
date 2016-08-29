@@ -25,8 +25,10 @@
     });
 
     $('#inputDiv').on('keyup', 'input', function(){
-      RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val());
-      RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
+      RootRef.child($(this).attr('data-src').replace('.','/')).set($(this).val(),function(e){
+        console.log(e);
+      });
+      // RootRef.child('updated_at').set(JSONBASE.ServerValue.TIMESTAMP);
     });
 
     function render(){

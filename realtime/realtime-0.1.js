@@ -139,7 +139,7 @@
       this.old_data = copyValue(this.data);
       return this;
     },
-    set: function(who,pathname,setter,callback){
+    set: function(who,pathname,setter,callback){console.log('set',arguments);
       if( !this.isSetable(pathname) ){
         callback && callback('Error: Parent node cannot be found!')//prevent to set new value under not-a-node that may overwrite existed-value
         return this;
@@ -169,7 +169,7 @@
     get: function(who,pathname,callback){
       callback && callback( this.pullValue(pathname) );
     },
-    logSet: function(who,pathname,value,old_value){
+    logSet: function(who,pathname,value,old_value){console.log('logset',arguments);
       // [who,when,pathname,value,old_value]
       var set_log = [
         who, uniqueMillisecond(), pathname, JSON.stringify(value), JSON.stringify(old_value)
@@ -178,7 +178,7 @@
       logEvent(set_log);
       return this;
     },
-    logEvent: function(set_log){
+    logEvent: function(set_log){console.log(logEvent);
       var me = this;
       var when = set_log[1];
       var pathname = set_log[2]

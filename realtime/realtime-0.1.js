@@ -38,11 +38,10 @@
       return this;
     },
     receiveEvent: function(event_type,e){
-      //TODO: wrap the e to snapshot
-      console.log(e);
+      var snapshot = new SnapShot(this.pathname,e);
       this.eventListener[event_type] = this.eventListener[event_type] || [];
       this.eventListener[event_type].forEach(function(callback){
-        callback(e);
+        callback(snapshot);
       });
     },
     child: function(pathname){
@@ -55,6 +54,21 @@
     },
     root: function(){
       return getReference('/');
+    }
+  }
+
+  function SnapShot(pathname,e){
+    this.pathname = e.event_type == 'value' ? pathname : pathname + '/' + e.child_key;
+    this.event = e;
+    this.key = e.event_type != 'value' ? e.child_key : pathname.replace(/^.*?([^\/]*)$/,'$1');
+  }
+
+  SnapShot.prototype = {
+    val: function(){
+      return this.event.event_type == 'child_removed' ? this.event.old_value : this.event.value;
+    },
+    reference: function(){
+      return getReference(this.pathname);
     }
   }
 

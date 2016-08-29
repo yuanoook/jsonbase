@@ -1,11 +1,9 @@
 !function(){
   var references = {};
-  var RAMHost = new Host();//host in the RAM
 
   window.JSONBASE = {
     references: references,
-    Reference: getReference,
-    Host: Host
+    Reference: getReference
   }
 
   function getReference(pathname){
@@ -13,12 +11,17 @@
     //i.e: / /pathname /pathname/subpathname
     pathname = (pathname || '/').replace(/\/\/+/g,'/').replace(/\/$/,'') || '/';
     references[pathname] = references[pathname] || new Reference(pathname);
+    return references[pathname];
   }
 
   function Reference(pathname){
     this.id = uniqueMillisecond();
-    this.Host = RAMHost;
     this.pathname = pathname;
+    this.eventListener = {
+      //event_type: [callback1, callback2]
+    };
+
+    this.Host = JSONBASE.Host = JSONBASE.Host || new Host();//host in the RAM
     this.Host.clients[this.id] = this;
   }
 

@@ -8,7 +8,7 @@
   <script src="./static/js/jquery.plus.min.js"></script>
   <script src="./realtime/realtime-0.1.js" ></script>
   <script>
-  $(function(){return;
+  $(function(){
     RootRef = JSONBASE.Reference();
     var RootValue;
     var reset_timer;
@@ -20,6 +20,7 @@
     },function(err){
       console.log(err);
     }).on('child_changed',function(snapshot){
+      console.log(snapshot);
       var ref = snapshot.reference();
     });
 

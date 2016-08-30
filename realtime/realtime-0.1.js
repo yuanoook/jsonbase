@@ -328,14 +328,14 @@
         if( event_type=='value' ){
           pathname = getParentPathname(pathname);//bubble the event
           value = me.pullValue(pathname);
-          old_value = me.pullValue.call({data:this.old_data},pathname);
+          old_value = me.pullValue.call({data:me.old_data},pathname);
           addExportEvent(pathname,event_type,value,old_value);
         }
 
         if( event_type=='child_changed' ){
           child_key = pathname.replace(/^.*?([^\/]*)$/,'$1');
           value = me.pullValue(pathname);
-          old_value = me.pullValue.call({data:this.old_data},pathname);
+          old_value = me.pullValue.call({data:me.old_data},pathname);
           pathname = getParentPathname(pathname);//bubble the event
           addExportEvent(pathname,event_type,value,old_value,child_key);
         }

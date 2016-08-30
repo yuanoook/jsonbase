@@ -172,7 +172,9 @@
       return this;
     },
     isSetable: function(pathname){
-      return pathname=='/' || isNode(this.pullValue(getParentPathname(pathname)))
+      var parent_pathname = getParentPathname(pathname);
+      var parent_node = this.pullValue(parent_pathname);
+      return pathname=='/' || isNode(parent_node) || (isNull(parent_node) && this.isSetable(parent_pathname));
     },
     get: function(who,pathname,callback){
       callback && callback( this.pullValue(pathname) );

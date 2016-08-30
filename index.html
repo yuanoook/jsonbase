@@ -21,8 +21,6 @@
       console.warn(err);
     }).on('child_changed',function(snapshot){
       console.log(snapshot);
-    }).on('child_added',function(snapshot){
-      console.log(snapshot);
     });
 
     $('#inputDiv').on('keyup', 'input', function(){

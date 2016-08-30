@@ -130,16 +130,16 @@
       try{
         while(keys_arr.length)
         subobj = subobj[ keys_arr.shift() ];
-        return subobj;
+        return isNull(subobj) ? null : subobj;
       }catch(e){
-        return;
+        return null;
       }
     },
     backupOldData: function(){
       this.old_data = copyValue(this.data);
       return this;
     },
-    set: function(who,pathname,setter,callback){console.log('set',arguments);
+    set: function(who,pathname,setter,callback){
       if( !this.isSetable(pathname) ){
         callback && callback('Error: Parent node cannot be found!')//prevent to set new value under not-a-node that may overwrite existed-value
         return this;
@@ -160,7 +160,7 @@
       }
 
       this.logSet(who,pathname,value,old_value);
-      callback() && callback();
+      callback && callback();
       return this;
     },
     isSetable: function(pathname){
@@ -169,16 +169,16 @@
     get: function(who,pathname,callback){
       callback && callback( this.pullValue(pathname) );
     },
-    logSet: function(who,pathname,value,old_value){console.log('logset',arguments);
+    logSet: function(who,pathname,value,old_value){
       // [who,when,pathname,value,old_value]
       var set_log = [
         who, uniqueMillisecond(), pathname, JSON.stringify(value), JSON.stringify(old_value)
       ];
       this.set_logs.push(set_log);
-      logEvent(set_log);
+      this.logEvent(set_log);
       return this;
     },
-    logEvent: function(set_log){console.log(logEvent);
+    logEvent: function(set_log){
       var me = this;
       var when = set_log[1];
       var pathname = set_log[2]
@@ -225,7 +225,7 @@
         return new_event_log;
       });
 
-      exportEvents(new_event_logs);
+      this.exportEvents(new_event_logs);
 
       return this;
 
@@ -257,6 +257,7 @@
         //      value: value,
         //      old_value: old_value
         //      child_key: child_key
+        //      event_type: event_type
         //   }
         // }
         // see this.listened_events
@@ -289,7 +290,12 @@
       return this;
 
       function addExportEvent(pathname,event_type,value,old_value,child_key){
-        (export_events[pathname] = export_events[pathname] || {})[event_type] = {value:value,old_value:old_value,key:child_key};
+        (export_events[pathname] = export_events[pathname] || {})[event_type] = {
+          value:value,
+          old_value:old_value,
+          key:child_key,
+          event_type:event_type
+        };
 
         if(pathname==getParentPathname(pathname)){return;}
 
@@ -310,6 +316,7 @@
       }
     },
     deliverEvents: function(export_events){
+      var me = this;
       for(var pathname in export_events){
         if(!export_events.hasOwnProperty(pathname)){continue;}
         var events = export_events[pathname];
@@ -317,7 +324,7 @@
           if(!events.hasOwnProperty(event_type)){continue;}
           if(this.listened_events[pathname] && this.listened_events[pathname][event_type])
           this.listened_events[pathname][event_type].forEach(function(who){
-            notifyEvent(who,event_type,events[event_type]);
+            me.notifyEvent(who,event_type,events[event_type]);
           });
         }
       }
@@ -343,6 +350,12 @@
     return obj;
   }
 
+  function uniqueArray(arr){
+    return arr.filter(function(value,index,self){
+        return self.indexOf(value) === index;
+    });
+  }
+
   function isFunction(obj){
     return /Function/.test(Object.prototype.toString.call(obj));
   }
@@ -360,7 +373,7 @@
   }
 
   function getParentPathname(pathname){
-    return pathname.replace(/\/[^\/?]\/?$/,'');
+    return pathname.replace(/\/\/+/g,'/').replace(/\/[^\/]+\/?$/,'') || '/';
   }
 
 }();

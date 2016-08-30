@@ -13,9 +13,9 @@
     var RootValue;
     var reset_timer;
 
-    RootRef.on("value",function(snapshot){
+    RootRef.on("value",function(snapshot){console.log(snapshot);
       RootValue = snapshot.val();
-      resetOneHour();
+      // resetOneHour();
       render();
     },function(err){
       console.log(err);
@@ -51,7 +51,7 @@
             "city" : "ShenZhen",
             "zip" : 518000
           },
-          "updated_at": JSONBASE.ServerValue.TIMESTAMP
+          // "updated_at": JSONBASE.ServerValue.TIMESTAMP
         });
       }
     }

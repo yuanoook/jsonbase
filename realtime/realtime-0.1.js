@@ -40,9 +40,9 @@
       return this;
     },
     on: function(event_type,callback,err_callback){
-      this.Host.addEventListener(this.id,this.pathname,event_type);
       this.eventListener[event_type] = this.eventListener[event_type] || [];
       this.eventListener[event_type].push([callback,err_callback]);
+      this.Host.addEventListener(this.id,this.pathname,event_type);
       return this;
     },
     receiveEvent: function(event_type,e){
@@ -351,7 +351,7 @@
       this.listened_events[pathname][event_type].push(who);
 
       if( event_type=='value' ){
-        var value = this.pullValue(pathname);console.log(value);
+        var value = this.pullValue(pathname);
         this.notifyEvent(who,'value',{
          event_type: 'value',
          value: value,

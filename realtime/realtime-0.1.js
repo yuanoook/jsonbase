@@ -3,7 +3,12 @@
 
   window.JSONBASE = {
     references: references,
-    Reference: getReference
+    Reference: getReference,
+    ServerValue: {
+      TIMESTAMP: {
+        '.sv': 'ums'
+      }
+    }
   }
 
   function getReference(pathname){
@@ -151,6 +156,9 @@
         callback && callback('Error: Cannot set undefined as new value!');
         return this;
       }
+
+      value = !(value && value['.sv'] && value['.sv']=='ums') ? value : uniqueMillisecond();
+
       try{
         this.backupOldData();
         this.pushValue(pathname,value);

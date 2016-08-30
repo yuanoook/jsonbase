@@ -209,7 +209,8 @@
       });
 
       var new_event_logs = differences.map(function(difference){
-        var pathname = difference[0];
+        var diff_pathname = difference[0];
+        var diff_full_pathname = (pathname + '/' + diff_pathname).replace(/\/\/+/g,'/');
         var path_value = difference[1];
         var path_old_value = difference[2];
 
@@ -218,7 +219,7 @@
         var past_existed = isNull(path_old_value);
         var path_value_type = isNode(path_value) ? 'N' : 'V';
 
-        var new_event_log = [when, pathname, past_existed, current_existed, path_value_type, path_value, path_old_value];
+        var new_event_log = [when, diff_full_pathname, past_existed, current_existed, path_value_type, path_value, path_old_value];
 
         //log the event;
         me.event_logs.push(new_event_log);
@@ -230,6 +231,7 @@
       return this;
 
       function listPathnames(pathname,obj){
+        pathname = (pathname||'/').replace(/\/\/+/g,'/');
         var result = [pathname];
         if( !isNode(obj) ){
           return result;

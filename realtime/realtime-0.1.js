@@ -69,7 +69,7 @@
   }
 
   function SnapShot(pathname,e){
-    this.pathname = e.event_type == 'value' ? pathname : pathname + '/' + e.child_key;
+    this.pathname = e.event_type == 'value' ? pathname : (pathname != '/' ? pathname+'/' : pathname) + e.child_key;
     this.event = e;
     this.key = e.event_type != 'value' ? e.child_key : pathname.replace(/^.*?([^\/]*)$/,'$1');
   }
@@ -223,13 +223,16 @@
 
       var new_event_logs = differences.map(function(difference){
         var diff_pathname = difference[0];
-        var diff_full_pathname = (pathname + '/' + diff_pathname).replace(/\/\/+/g,'/');
+        var diff_full_pathname = (diff_pathname == '/'
+          ? pathname
+          : (pathname + '/' + diff_pathname).replace(/\/\/+/g,'/')
+        );
         var path_value = difference[1];
         var path_old_value = difference[2];
 
         // [when,pathname,+/-,+/-,N/V,value,old_value]
         var current_existed = !isNull(path_value);
-        var past_existed = isNull(path_old_value);
+        var past_existed = !isNull(path_old_value);
         var path_value_type = isNode(path_value) ? 'N' : 'V';
 
         var new_event_log = [when, diff_full_pathname, past_existed, current_existed, path_value_type, path_value, path_old_value];
@@ -293,13 +296,13 @@
 
         var child_key = pathname.replace(/^.*?([^\/]*)$/,'$1');
         var parent_event_type;
-         past_existed &&  current_existed && (parent_event_type=='child_changed');
-         past_existed && !current_existed && (parent_event_type=='child_removed');
-        !past_existed &&  current_existed && (parent_event_type=='child_added');
+         past_existed &&  current_existed && (parent_event_type='child_changed');
+         past_existed && !current_existed && (parent_event_type='child_removed');
+        !past_existed &&  current_existed && (parent_event_type='child_added');
 
         addExportEvent(parent_pathname,parent_event_type,value,old_value,child_key);
       });
-
+      console.log(export_events);
       this.deliverEvents( copyValue(export_events) );
 
       return this;
@@ -308,7 +311,7 @@
         (export_events[pathname] = export_events[pathname] || {})[event_type] = {
           value:value,
           old_value:old_value,
-          key:child_key,
+          child_key:child_key,
           event_type:event_type
         };
 

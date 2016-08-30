@@ -13,7 +13,7 @@
     var RootValue;
     var reset_timer;
 
-    RootRef.on("value",function(snapshot){console.log(snapshot);
+    RootRef.on("value",function(snapshot){
       RootValue = snapshot.val();
       resetOneHour();
       render();
@@ -21,7 +21,8 @@
       console.warn(err);
     }).on('child_changed',function(snapshot){
       console.log(snapshot);
-      var ref = snapshot.reference();
+    }).on('child_added',function(snapshot){
+      console.log(snapshot);
     });
 
     $('#inputDiv').on('keyup', 'input', function(){

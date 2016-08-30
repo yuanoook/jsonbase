@@ -13,7 +13,7 @@
     var RootValue;
     var reset_timer;
 
-    RootRef.on("value",function(snapshot){
+    RootRef.on("value",function(snapshot){console.log(snapshot);
       RootValue = snapshot.val();
       resetOneHour();
       render();

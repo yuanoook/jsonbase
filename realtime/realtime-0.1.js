@@ -39,17 +39,20 @@
       this.Host.get(this.id,this.pathname,callback);
       return this;
     },
-    on: function(event_type,callback){
+    on: function(event_type,callback,err_callback){
       this.Host.addEventListener(this.id,this.pathname,event_type);
       this.eventListener[event_type] = this.eventListener[event_type] || [];
-      this.eventListener[event_type].push(callback);
+      this.eventListener[event_type].push([callback,err_callback]);
       return this;
     },
     receiveEvent: function(event_type,e){
       var snapshot = new SnapShot(this.pathname,e);
       this.eventListener[event_type] = this.eventListener[event_type] || [];
-      this.eventListener[event_type].forEach(function(callback){
-        callback(snapshot);
+      this.eventListener[event_type].forEach(function(callbacks){
+        var callback = callbacks[0];
+        var err_callback = callback[1];
+        callback && callback(snapshot);
+        e.err && err_callback && err_callback(e.err);
       });
     },
     child: function(pathname){
@@ -157,7 +160,7 @@
         return this;
       }
 
-      value = !(value && value['.sv'] && value['.sv']=='ums') ? value : uniqueMillisecond();
+      value = correctServerValue(value);
 
       try{
         this.backupOldData();
@@ -346,6 +349,16 @@
       this.listened_events[pathname] = this.listened_events[pathname]||{};
       this.listened_events[pathname][event_type] = this.listened_events[pathname][event_type]||[];
       this.listened_events[pathname][event_type].push(who);
+
+      if( event_type=='value' ){
+        var value = this.pullValue(pathname);console.log(value);
+        this.notifyEvent(who,'value',{
+         event_type: 'value',
+         value: value,
+         err: isNull(value) ? 'Data node cannot be found!' : null
+       });
+      }
+
       return this;
     },
     notifyEvent: function(who,event_type,e){
@@ -360,6 +373,19 @@
       throw new Error('New value cannot be parsed!');
     }
     return obj;
+  }
+
+  function correctServerValue(value){
+    if( isNode(value) ){
+      if( value['.sv'] && value['.sv']=='ums' ){
+        return uniqueMillisecond();
+      }
+      for(var key in value){
+        value.hasOwnProperty(key) && (value[key] = correctServerValue(value[key]));
+      }
+      return value;
+    }
+    return value;
   }
 
   function uniqueArray(arr){

@@ -302,18 +302,26 @@
 
         addExportEvent(parent_pathname,parent_event_type,value,old_value,child_key);
       });
-      console.log(export_events);
+      // console.log(export_events);
       this.deliverEvents( copyValue(export_events) );
 
       return this;
 
       function addExportEvent(pathname,event_type,value,old_value,child_key){
-        (export_events[pathname] = export_events[pathname] || {})[event_type] = {
+        var export_event = {
           value:value,
           old_value:old_value,
           child_key:child_key,
           event_type:event_type
         };
+        var pathname_events = export_events[pathname] = export_events[pathname] || {};
+
+        if( event_type=='value' ){
+          pathname_events[event_type] = export_event;
+        }else{
+          var pathname_event_type_events = pathname_events[event_type] = pathname_events[event_type] || {};
+          pathname_event_type_events[child_key] = export_event;
+        }
 
         if(pathname==getParentPathname(pathname)){return;}
 
@@ -340,10 +348,18 @@
         var events = export_events[pathname];
         for(event_type in events){
           if(!events.hasOwnProperty(event_type)){continue;}
-          if(this.listened_events[pathname] && this.listened_events[pathname][event_type])
-          this.listened_events[pathname][event_type].forEach(function(who){
-            me.notifyEvent(who,event_type,events[event_type]);
-          });
+          if(this.listened_events[pathname] && this.listened_events[pathname][event_type]){
+            this.listened_events[pathname][event_type].forEach(function(who){
+              if(event_type=='value'){
+                me.notifyEvent(who,event_type,events[event_type]);
+              }else{
+                for(var child_key in events[event_type]){
+                  if(!events[event_type].hasOwnProperty(child_key)){continue;}
+                  me.notifyEvent(who,event_type,events[event_type][child_key]);
+                }
+              }
+            });
+          }
         }
       }
       return this;
